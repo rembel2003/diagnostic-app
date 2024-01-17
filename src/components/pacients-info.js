@@ -1,8 +1,59 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import medicfoto from "../images/Rectangle 83.png";
 import Pacient from "./pacients/pacient";
+import ModalPacient from "./modalPacient";
 
 function PacientsInfo(props) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [pacients,setPacients] =useState([])
+
+    useEffect(() => {
+        fetch('http://localhost:5000/patients')  // Замените на URL вашего Flask-сервера
+            .then(response => response.json())
+            .then(data => {
+                setPacients(data);  // Предположим, что у вас есть состояние patients для хранения данных
+                console.log(data);
+            })
+            .catch(error => console.error('Ошибка:', error));
+    }, []);
+
+    const handleDelete = (patientId) => {
+        fetch(`http://localhost:5000/patient/${patientId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    // Удаление успешно
+                    // Задержка перед выполнением второго запроса
+                    setTimeout(() => {
+                        fetch('http://localhost:5000/patients') // Замените на URL вашего Flask-сервера
+                            .then(response => response.json())
+                            .then(data => {
+                                setPacients(data); // Предположим, что у вас есть состояние patients для хранения данных
+                                console.log(data);
+                            })
+                            .catch(error => console.error('Ошибка:', error));
+                    }, 500); // Задержка 1000 миллисекунд (1 секунда)
+                } else {
+                    console.error('Не удалось удалить пациента');
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка при удалении пациента', error);
+            });
+    };
+
+
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
     return (
         <div>
             <div className="flex">
@@ -26,9 +77,20 @@ function PacientsInfo(props) {
                     <h1 className="text-telefon font-sans text-5xl not-italic font-bold leading-px-68 uppercase absolute top-14" id="pacients">Наши пациенты</h1>
                     <div className="absolute top-32 flex flex-wrap">
                         <div className="flex mb-8 ">
-                            <Pacient/>
+                            {pacients.map(pacient=>(
+                                <div key={pacient.id}>
+                                   <Pacient  firstName={pacient.first_name}
+                                                                                 lastName={pacient.last_name} age={pacient.age} diseasesNumber={pacient.medical_history.length}
+                                                                                 id={pacient.id}                   delete={handleDelete}
+                                    />
+                                </div>))}
                         </div>
+
                     </div>
+                    <div className="absolute bottom-20 right-8">
+                    <button onClick={openModal} className="bg-regal-red text-white py-2 px-4 rounded-full">Добавить пациента</button>
+                    <ModalPacient isOpen={isModalOpen} onClose={closeModal} />
+                </div>
                 </div>
             </div>
         </div>

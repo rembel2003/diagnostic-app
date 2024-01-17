@@ -1,40 +1,31 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from "../header";
-import medicfoto from "../../images/Rectangle 83.png";
-import Questions from "../doctor-question/questions";
-import Disease from "./disease";
+import medicfoto from "../../images/img_1.png";
 import Footer from "../footer";
+import {useParams} from "react-router-dom";
+import Disease from "./disease";
 
-function PacientPage(props) {
+
+function PacientPage() {
     const [activeIndex,setActiveIndex] =useState(0)
+    const  patientId = useParams()
+    const [patientData, setPatientData] = useState([]); // Состояние для данных о пациенте
 
-    const questionsAnswers = [
-        {
-            disease: 'Хронический бронхит',
-            date: '15.03.2021',
-            symptoms: 'Пациент жалуется на кашель с мокротой, который усиливается утром. Наблюдается более 2 лет, особенно в холодное время года. Недавно увеличилась одышка при физической нагрузке.'
-        },
-        {
-            disease: 'Гипертоническая болезнь',
-            date: '20.06.2020',
-            symptoms: 'Повышенное артериальное давление до 160/100 мм рт. ст., периодические головные боли, особенно в области затылка, головокружения. Были эпизоды гипертонических кризов в прошлом.'
-        },
-        {
-            disease: 'Остеоартрит коленного сустава',
-            date: '05.11.2019',
-            symptoms: 'Боли в колене, усиливающиеся при ходьбе и спуске по лестнице. Отек и скованность в суставе утром. Износ хряща в коленном суставе, подтвержденный рентгенографией.'
-        },
-        {
-            disease: 'Сахарный диабет 2 типа',
-            date: '12.08.2018',
-            symptoms: 'Постоянная жажда, частое мочеиспускание, усталость. Уровень глюкозы в крови выше нормы. Наблюдается семейная предрасположенность к диабету.'
-        },
-        {
-            disease: 'Мигрень',
-            date: '30.01.2017',
-            symptoms: 'Периодические сильные пульсирующие головные боли, обычно сосредоточенные в одной части головы. Боли усиливаются при ярком свете или громких звуках. Наблюдаются ауры, такие как мерцание перед глазами.'
-        }
-    ];
+    useEffect(() => {
+        // Отправляем запрос на сервер для получения данных о пациенте по patientId
+        fetch(`http://localhost:5000/patient/${patientId.PacientId}`,{
+
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                {setPatientData(data)
+                console.log(data)}; // Устанавливаем данные в состояние
+            })
+            .catch((error) => {
+                console.error('Ошибка при загрузке данных о пациенте', error);
+            });
+    }, []);
+
 
     const handleClick = (index) =>{
         setActiveIndex(index===activeIndex?null:index)
@@ -44,7 +35,7 @@ function PacientPage(props) {
             <div className="bg-gray-700 flex justify-center h-96 ">
                 <div className="w-4/5 relative">
                     <Header/>
-                    <h1 className="text-white font-sans text-5xl not-italic font-bold leading-px-68 uppercase absolute bottom-32 left-14">Джон Сноу</h1>
+                    <h1 className="text-white font-sans text-5xl not-italic font-bold leading-px-68 uppercase absolute bottom-32 left-14">{patientData.first_name+" "+patientData.last_name}</h1>
                 </div>
             </div>
             <div className="relative h-screen flex">
@@ -52,23 +43,20 @@ function PacientPage(props) {
                     <img src={medicfoto} alt="foto of medics" className="w-full"/>
                 </div>
                 <div className="bg-backtotext  text-center w-1/2 flex flex-col justify-center">
-                    <p className="font-sans text-sm not-italic font-bold leading-px-68 uppercase w-3/5 mb-8">Возраст: 45 лет</p>
-                    <p className="font-sans text-sm not-italic font-bold leading-px-68 uppercase w-3/5 mb-8">Пол: Мужской</p>
+                    <p className="font-sans text-sm not-italic font-bold leading-px-68 uppercase w-3/5 mb-8">Возраст: {patientData.age} лет</p>
+                    <p className="font-sans text-sm not-italic font-bold leading-px-68 uppercase w-3/5 mb-8">Пол: {patientData.gender}</p>
                     <p className="font-sans text-sm not-italic font-bold leading-px-68 uppercase w-3/5 mb-8">Анамнез:
-                        Не курит, умеренно употребляет алкоголь.
-                        Нет хронических заболеваний.
-                        Аллергии: нет известных аллергий.
-                        Семейный анамнез: отец умер от сердечного приступа в возрасте 50 лет, мать страдает гипертонией.</p>
+                        {patientData.anamnesis}</p>
                 </div>
             </div>
             <div className="bg-gray-700 relative h-96">
                 <h1 className="text-white font-sans text-5xl not-italic font-bold leading-px-68 uppercase absolute top-0 left-96 " id="questions">Болезни</h1>
                 <div className="pt-12 pb-12 flex flex-col flex-wrap relative ">
-                    {questionsAnswers.map((qa, index) => (
+                    {patientData.medical_history && patientData.medical_history.map((qa, index) => (
                         <Disease
                             key={index}
-                            disease={qa.disease}
-                            date={qa.date}
+                            disease={qa.name}
+                            date={qa.date.split(' ').slice(1, 4).join(' ')}
                             symptoms={qa.symptoms}
                             isOpen={index === activeIndex}
                             onClick={() => handleClick(index)}

@@ -1,11 +1,26 @@
-import React from 'react';
+import React, {useState} from 'react';
 import mouse from "../images/uil_mouse-alt.svg";
 import instagram from "../images/ant-design_instagram-outlined.svg";
 import telefon from "../images/ic_round-call.svg";
 import messenger from "../images/jam_write-f.svg";
 import whatsapp from "../images/bx_bxl-whatsapp.svg";
+import ModalSymptoms from "./modalSymptoms";
 
 function MainPage(props) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [savedSymptoms, setSavedSymptoms] = useState('');
+
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleSaveSymptoms = (symptoms) => {
+        setSavedSymptoms(symptoms);
+    };
     return (
         <div>
             <main>
@@ -21,9 +36,14 @@ function MainPage(props) {
                     </p>
                     <button className="w-60 h-12 text-white font-sans text-sm not-italic
                           font-bold leading-px-68 uppercase absolute bottom-36 bg-transparent rounded-3xl
-                          border border-amber-50 text-center">Позвони нам
-                    </button>
+                          border border-amber-50 text-center" onClick={handleOpenModal}>Введите симптомы
 
+                    </button>
+                    <ModalSymptoms
+                        isOpen={isModalOpen}
+                        onClose={handleCloseModal}
+                        onSave={handleSaveSymptoms}
+                    />
                     <div
                         className="w-16 h-16 bg-regal-yellow rounded-full absolute left-1/2 bottom-16 animate-bounce  flex justify-center items-center ">
                         <img className="mouse-img" src={mouse} alt="mouse image"/>

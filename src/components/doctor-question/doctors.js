@@ -1,10 +1,23 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import profilefoto from "../../images/Rectangle 53.png";
 import Questions from "./questions";
 import {Link} from "react-router-dom";
+import DoctorsList from "./doctorsList";
 
 function Doctors(props) {
     const [activeIndex,setActiveIndex] =useState(0)
+    const [doctors, setDoctors] = useState([]);
+    useEffect(() => {
+        if (typeof window !== 'undefined') { // Проверка на клиентской стороне
+            fetch('http://localhost:5000/doctors')
+                .then(response => response.json())
+                .then(data => {
+                    setDoctors(data);
+                    console.log(data);
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+    }, []);
 
     const questionsAnswers =[
         {question:'Как точны диагнозы, предоставляемые приложением?',answer:' Наше приложение использует передовые алгоритмы искусственного интеллекта для анализа ваших симптомов и предоставления возможных диагнозов. Однако следует понимать, что диагнозы, предоставляемые приложением, являются лишь предварительными и не могут заменить профессиональную медицинскую консультацию. Мы рекомендуем обращаться к врачу для получения точного диагноза и назначения лечения.'},
@@ -27,31 +40,8 @@ function Doctors(props) {
                             <h1 className="text-white font-sans text-5xl not-italic font-bold leading-px-68 uppercase absolute top-14 left-14">Наши
                                 Специалисты</h1>
                             <div className="flex absolute top-32 left-16 ">
-                                <div className="text-center">
-                                    <img src={profilefoto} alt="profile foto"/>
-                                    <h1 className="text-white font-sans font-bold leading-px-68 uppercase mr-32">Геннадий
-                                        горин-терапевт</h1>
-                                </div>
-                                <div className="text-center ">
-                                    <img src={profilefoto} alt="profile foto"/>
-                                    <h1 className="text-white font-sans font-bold leading-px-68 uppercase mr-32">Геннадий
-                                        горин-терапевт</h1>
-                                </div>
-                                <div className="text-center">
-                                    <img src={profilefoto} alt="profile foto"/>
-                                    <h1 className="text-white font-sans font-bold leading-px-68 uppercase mr-32">Геннадий
-                                        горин-терапевт</h1>
-                                </div>
-                                <div className="text-center">
-                                    <img src={profilefoto} alt="profile foto"/>
-                                    <h1 className="text-white font-sans font-bold leading-px-68 uppercase mr-32">Геннадий
-                                        горин-терапевт</h1>
-                                </div>
-                                <div className="text-center">
-                                    <img src={profilefoto} alt="profile foto"/>
-                                    <h1 className="text-white font-sans font-bold leading-px-68 uppercase">Геннадий
-                                        горин-терапевт</h1>
-                                </div>
+                                {doctors.map(doctor => (<DoctorsList key={doctor.id} name={doctor.name}/>
+                                ))}
                             </div>
 
                         </div>
